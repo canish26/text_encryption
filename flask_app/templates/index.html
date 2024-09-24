@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Anonymizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>CSV Anonymizer</h1>
+    <form id="csvForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file" accept=".csv" required>
+        <button type="submit">Upload and Anonymize</button>
+    </form>
+
+    <a id="downloadLink" style="display: none;">Download Anonymized CSV</a>
+
+    <script>
+        document.getElementById('csvForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please upload a file");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('./anonymize', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = url;
+                downloadLink.download = 'anonymized_sensitive_data.csv';
+                downloadLink.style.display = 'inline';
+                downloadLink.textContent = 'Download Anonymized CSV';
+            } else {
+                alert('An error occurred while processing the file.');
+            }
+        });
+    </script>
+
+</body>
+</html>
